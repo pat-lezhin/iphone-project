@@ -105,8 +105,14 @@
     .lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:50; }
     .lightbox img{ max-width:88vw; max-height:88vh; border-radius:12px; }
 
-    .video{ width:100%; aspect-ratio:16/9; background:#111827; border-radius:14px; display:grid; place-items:center; color:#9ca3af; border:1px dashed #374151; }
     .noise{ width:100%; aspect-ratio:16/9; border-radius:14px; background: repeating-linear-gradient(0deg,#111 0,#111 2px,#1a1a1a 2px,#1a1a1a 4px); display:grid; place-items:center; color:#cbd5e1; font-weight:800; letter-spacing:.1em; }
+    
+    .video {
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 14px;
+      border: none; /* iframe 테두리 제거 */
+    }
 
     .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
@@ -303,7 +309,7 @@
               <div class="bar"><button class="x" data-close>✕</button><div class="title">BOM TV</div><span class="spacer"></span></div>
               <div class="body">
                 <div id="pvBefore" class="noise">準備中</div>
-                <div id="pvAfter" class="video" style="display:none;">여기에 PV/티저 영상 임베드</div>
+                <iframe id="pvAfter" class="video" style="display:none;" src="https://www.youtube-nocookie.com/embed/Q-6hVfCovKs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                 <div class="muted" style="margin-top:10px; font-size:12px; color:#9ca3af">PV 공개 전에는 노이즈 화면, 공개 후에는 영상으로 자동 전환(변수로 제어)</div>
               </div>
             </div>
@@ -386,10 +392,10 @@
     const homeEl=document.getElementById('home');
     const notifStack=document.getElementById('notifStack');
 
-    // 더미 알림 채우기 (스크롤 가능)
+    // 더미 알림 채우기 (스크롤 가능) "여기서 잠금 화면 알림 창 텍스트 수정 가능"
     const DUMMY = [
-      {t:'시즌그리팅', d:'오늘 18시 티저 공개'},
-      {t:'팝업 예약', d:'오픈 D-5 · 자세한 내용은 웹 앱'},
+      {t:'김준완 연차', d:'8월18일 이사해야함'},
+      {t:'구내 시당', d:'이번주는 거르는게 답'},
       {t:'톡', d:'[공지] 굿즈 예판 링크 안내'},
       {t:'News', d:'티저 이미지 티징 (클릭 불가)'},
       {t:'BOM TV', d:'PV 공개 D-3 · 홈에서 확인'},
@@ -430,9 +436,37 @@
       }, 320);
     }
 
-    // Apps open/close
-    document.querySelectorAll('.app-tile').forEach(btn=> btn.addEventListener('click',()=>{ const id=btn.getAttribute('data-app'); const el=document.getElementById(`app-${id}`); if(el) el.style.display='flex'; }));
-    document.querySelectorAll('.app-screen').forEach(s=>{ s.addEventListener('click',e=>{ if(e.target===s) s.style.display='none'; }); s.querySelectorAll('[data-close]').forEach(x=> x.addEventListener('click',()=> s.style.display='none')); });
+    // ===== Apps open/close (안정화된 버전) =====
+    // 모든 앱 타일 버튼에 대해 클릭 이벤트 설정
+    document.querySelectorAll('.app-tile').forEach(button => {
+        button.addEventListener('click', () => {
+            const appId = button.getAttribute('data-app');
+            if (appId) {
+                const appScreen = document.getElementById(`app-${appId}`);
+                if (appScreen) {
+                    appScreen.style.display = 'flex';
+                }
+            }
+        });
+    });
+
+    // 모든 앱 화면의 닫기 버튼과 배경 클릭 이벤트 설정
+    document.querySelectorAll('.app-screen').forEach(appScreen => {
+        // 배경 클릭 시 닫기
+        appScreen.addEventListener('click', (event) => {
+            if (event.target === appScreen) {
+                appScreen.style.display = 'none';
+            }
+        });
+
+        // 'x' 닫기 버튼 클릭 시 닫기
+        const closeButton = appScreen.querySelector('[data-close]');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                appScreen.style.display = 'none';
+            });
+        }
+    });
 
     // Gallery lightbox
     const lightbox=document.getElementById('lightbox'); const lightimg=document.getElementById('lightimg');
@@ -442,7 +476,10 @@
     // BOM TV PV 토글
     const pvToggle=document.getElementById('pvToggle');
     const pvBefore=document.getElementById('pvBefore'); const pvAfter=document.getElementById('pvAfter');
-    function applyPV(v){ pvBefore.style.display = v? 'none':'grid'; pvAfter.style.display = v? 'grid':'none'; }
+    function applyPV(v){ 
+      pvBefore.style.display = v ? 'none' : 'grid'; 
+      pvAfter.style.display = v ? 'block' : 'none'; // iframe은 block 요소로 변경
+    }
     if(pvToggle){ pvToggle.addEventListener('change', e=> applyPV(e.target.checked)); }
     applyPV(false);
 
@@ -474,7 +511,7 @@
     // 트위터 공유 링크 기능
     shareTwitter.addEventListener('click', (e) => {
       e.preventDefault();
-      const shareText = "이 멋진 아이폰 UI 컨셉 프로젝트를 확인해보세요!";
+      const shareText = "김빠지게 못하겠단 소리 하지마라 \n도전 하는게 중요 한거다\n호기롭게 시작한 만큼 끝까지 해보자";
       const shareUrl = window.location.href; // 현재 웹사이트 주소 사용
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
       window.open(twitterUrl, '_blank', 'width=600,height=400');
