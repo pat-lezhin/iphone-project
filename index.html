@@ -9,7 +9,7 @@
   <style>
     :root{
       --page-bg:url('images/bg_image.png');
-      --device-scale: 1;
+      --device-scale: 0.9;
       --brand:#0a84ff;
       --glass: rgba(255,255,255,.65);
       --ink:#0b1220;
@@ -38,11 +38,11 @@
       content: "";
       position: absolute;
       inset: -20px; /* 블러 효과가 퍼져나갈 여유 공간 확보 */
-      background: var(--page-bg) center -750px /100% no-repeat; /* 배경 이미지 비율조절 가능*/
+      background: var(--page-bg) center top /100% no-repeat; /* 배경 이미지 비율조절 가능*/
       filter: blur(1.8px); /* 블러 강도 조절 가능 */   
       z-index: -1; /* 이제 .stage 안에서만 뒤로 감 */
     }
-    .device-wrap{ transform: scale(var(--device-scale)); filter: drop-shadow(0 26px 38px rgba(0,0,0,.45)); position:relative; }
+    .device-wrap{ transform: scale(var(--device-scale)); filter: drop-shadow(0 26px 38px rgba(0,0,0,.45)); position:relative; margin-top: -5vh; }
 
     /* ===== iPhone frame ===== */
     .iphone{ position:relative; width:390px; height:844px; border-radius:56px; padding:18px; background:linear-gradient(180deg,#0f1115,#151821); border:10px solid #0e1117; }
@@ -450,8 +450,8 @@
 
     // 더미 알림 채우기 (스크롤 가능)
     const DUMMY = [
-      {t:'김준완 연차', d:'8월18일 이사해야함'},
-      {t:'구내 시당', d:'이번주는 거르는게 답'},
+      {t:'김준완 연차', d:'8월18일 이사'},
+      {t:'구내 시당', d:'이번주는 어떨까?'},
       {t:'톡', d:'[공지] 굿즈 예판 링크 안내'},
       {t:'News', d:'티저 이미지 티징 (클릭 불가)'},
       {t:'BOM TV', d:'PV 공개 D-3 · 홈에서 확인'},
