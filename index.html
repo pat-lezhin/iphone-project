@@ -115,10 +115,79 @@
     @keyframes homeIn { from { opacity:0; transform: scale(.98); filter: blur(2px); } to { opacity:1; transform: scale(1); filter: blur(0); } }
     .lock.unlocking{ animation: unlockUp .35s ease both; }
     .home.show{ animation: homeIn .35s ease both; }
+     /* ===== Share Button & Modal ===== */
+    .share-btn {
+      position: absolute;
+      bottom: 30px;
+      left: 30px;
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, .2);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 50%;
+      font-size: 20px;
+      color: #fff;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      z-index: 10;
+    }
+
+    .share-modal-overlay {
+      position: fixed; /* 전체 화면을 덮기 위해 fixed 사용 */
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px); /* Safari 브라우저 호환성 */
+      z-index: 100;
+      display: none; /* 평소엔 숨겨둠 */
+      align-items: center;
+      justify-content: center;
+    }
+
+    .share-box {
+      background: #1f2937;
+      padding: 28px;
+      border-radius: 20px;
+      text-align: center;
+      position: relative;
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    }
+
+    .share-box p {
+      margin: 0 0 16px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+
+    .share-link svg {
+      width: 50px;
+      height: 50px;
+      fill: #fff; /* SVG 아이콘 색상 */
+      transition: transform .2s ease;
+    }
+    .share-link:hover svg {
+        transform: scale(1.1);
+    }
+
+    .close-share {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="stage">
+    <button class="share-btn" id="shareBtn">🔗</button>
+
     <div class="device-wrap">
       <div class="iphone" role="region" aria-label="iPhone mockup">
         <div class="island" aria-hidden="true"></div>
@@ -164,8 +233,6 @@
               <button class="app-tile" data-app="phone"><div class="icon i-ft">📞</div></button>
               <button class="app-tile" data-app="msg"><div class="icon i-ft">💬</div></button>
             </div>
-
-            <div class="search-pill">⌘ Search</div>
           </section>
 
           <!-- ===== Apps (modals) ===== -->
@@ -367,6 +434,65 @@
 
     // ESC closes top-most
     document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ const opens=[...document.querySelectorAll('.app-screen')].filter(s=>getComputedStyle(s).display!=='none'); const top=opens.at(-1); if(top) top.style.display='none'; }});
+      // ... 기존 ESC 키보드 이벤트 리스너 ...
+
+    // ===== Share Modal Logic =====
+    const shareBtn = document.getElementById('shareBtn');
+    const shareModal = document.getElementById('shareModal');
+    const closeShareBtn = document.getElementById('closeShareBtn');
+    const shareTwitter = document.getElementById('shareTwitter');
+
+    if(shareBtn) {
+      shareBtn.addEventListener('click', () => {
+        shareModal.style.display = 'flex';
+      });
+    }
+
+    function closeShareModal() {
+      shareModal.style.display = 'none';
+    }
+
+    closeShareBtn.addEventListener('click', closeShareModal);
+
+    // 팝업창 바깥의 어두운 영역을 클릭해도 닫히게 함
+    shareModal.addEventListener('click', (e) => {
+      if (e.target === shareModal) {
+        closeShareModal();
+      }
+    });
+
+    // 트위터 공유 링크 기능
+    shareTwitter.addEventListener('click', (e) => {
+      e.preventDefault();
+      const shareText = "이 멋진 아이폰 UI 컨셉 프로젝트를 확인해보세요!";
+      const shareUrl = window.location.href; // 현재 웹사이트 주소 사용
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+      window.open(twitterUrl, '_blank', 'width=600,height=400');
+    });
+
+    // ESC 키로 공유창도 닫을 수 있게 기존 기능에 추가
+    document.addEventListener('keydown', e=>{ 
+      if(e.key === 'Escape'){ 
+        if(getComputedStyle(shareModal).display !== 'none') {
+            closeShareModal();
+            return; // 공유창이 닫혔으면 여기서 함수 종료
+        }
+        const opens=[...document.querySelectorAll('.app-screen')].filter(s=>getComputedStyle(s).display!=='none'); 
+        const top=opens.at(-1); 
+        if(top) top.style.display='none'; 
+      }
+    });
   </script>
+          <div class="share-modal-overlay" id="shareModal">
+            <div class="share-box">
+                <p>이 페이지 공유하기</p>
+                <a href="#" id="shareTwitter" class="share-link" title="X(트위터)에 공유">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                </a>
+                <button class="close-share" id="closeShareBtn">✕</button>
+            </div>
+        </div>
 </body>
 </html>
