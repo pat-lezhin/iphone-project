@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <title>iPhone-style Mobile UI · Concept-alike</title>
+  <!-- Google Maps API: callback 제거 (직접 호출) -->
+  <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAxlcBbyxBP7TttzXGzoSIdbLFQ_5u6qtk"></script>
   <style>
     :root{
       --page-bg:url('images/bg_image.png');
@@ -21,14 +23,25 @@
     html,body{ height:100%; margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial; background:#0b0f17; color:#e5e7eb; }
 
     /* ===== Stage (웹 배경 + 휴대폰) ===== */
-    .stage{
-      min-height:100dvh; display:grid; place-items:center; padding: clamp(12px, 3vw, 28px);
-      background:
-        radial-gradient(60% 50% at 20% 20%, rgba(255,255,255,.08), transparent 60%),
-        radial-gradient(60% 50% at 80% 80%, rgba(255,255,255,.05), transparent 60%),
-        var(--page-bg) center/cover no-repeat fixed;
+    .stage {
+      min-height: 80dvh;
+      display: grid;
+      place-items: center;
+      padding: clamp(12px, 3vw, 28px);
+      overflow: hidden;
+      position: relative;
+      isolation: isolate; /* ::before가 부모 안에 머물도록 경계 설정 */
     }
 
+    /* 배경 이미지와 블러 효과를 위한 가상 요소 추가 */
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: -20px; /* 블러 효과가 퍼져나갈 여유 공간 확보 */
+      background: var(--page-bg) center -750px /100% no-repeat; /* 배경 이미지 비율조절 가능*/
+      filter: blur(1.8px); /* 블러 강도 조절 가능 */   
+      z-index: -1; /* 이제 .stage 안에서만 뒤로 감 */
+    }
     .device-wrap{ transform: scale(var(--device-scale)); filter: drop-shadow(0 26px 38px rgba(0,0,0,.45)); position:relative; }
 
     /* ===== iPhone frame ===== */
@@ -80,11 +93,20 @@
     /* ===== App screens (modals) ===== */
     .app-screen{ position:absolute; inset:0; background:rgba(0,0,0,.35); display:none; align-items:center; justify-content:center; padding:18px; }
     .app{ width:min(360px,92%); max-height:86%; background:#0a0f1a; border-radius:28px; overflow:hidden; border:1px solid rgba(255,255,255,.08); display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,.5); }
-    .app .bar{ display:flex; align-items:center; gap:10px; padding:12px 14px; background:#0e1422; border-bottom:1px solid rgba(255,255,255,.06); }
+    .app .bar{ flex-shrink: 0; display:flex; align-items:center; gap:10px; padding:12px 14px; background:#0e1422; border-bottom:1px solid rgba(255,255,255,.06); }
+    .app .body{ flex-grow: 1; overflow:auto; padding:14px; }
     .app .title{ font-weight:700; font-size:14px; }
     .spacer{ flex:1; }
     .x{ background:none; border:none; color:#9ca3af; font-weight:900; cursor:pointer; font-size:20px; }
-    .app .body{ padding:14px; overflow:auto; }
+    
+    /* 지도 앱을 위한 스타일 수정 */
+    #app-map .body {
+      padding: 0; /* 지도가 꽉 차도록 패딩 제거 */
+    }
+    #map-canvas {
+      width: 100%;
+      height: 100%;
+    }
 
     .chat{ display:grid; gap:8px; }
     .bubble{ max-width:80%; padding:10px 12px; border-radius:18px; }
@@ -328,7 +350,8 @@
             <div class="app">
               <div class="bar"><button class="x" data-close>✕</button><div class="title">지도</div><span class="spacer"></span></div>
               <div class="body">
-                <div class="card" style="padding:12px; border-radius:12px; background:#0d1424; border:1px solid rgba(255,255,255,.06)"><strong>힌트 좌표</strong><div class="muted" style="color:#9ca3af; font-size:12px">37.5665, 126.9780</div></div>
+                <!-- 지도가 그려질 영역 -->
+                <div id="map-canvas"></div>
               </div>
             </div>
           </div>
@@ -374,6 +397,39 @@
   </div>
 
   <script>
+    // 전역 변수로 지도 인스턴스를 관리
+    window.mapInstance = null;
+
+    // 지도 초기화 함수
+    window.initMap = function initMap() {
+      const position = { lat: 37.5665, lng: 126.9780 }; // 서울 시청
+      const mapCanvas = document.getElementById('map-canvas');
+      
+      // 지도 컨테이너가 없으면 함수 종료
+      if (!mapCanvas) return;
+
+      // 이미 지도가 생성되었다면, 크기만 재조정하고 중앙으로 이동
+      if (window.mapInstance) {
+        google.maps.event.trigger(window.mapInstance, 'resize');
+        window.mapInstance.setCenter(position);
+        return;
+      }
+
+      // 지도 생성 (안정적인 구식 마커 사용)
+      const map = new google.maps.Map(mapCanvas, {
+        zoom: 14,
+        center: position,
+      });
+      new google.maps.Marker({
+        map: map,
+        position: position,
+        title: 'Seoul City Hall'
+      });
+
+      // 생성된 지도 인스턴스를 전역 변수에 저장
+      window.mapInstance = map;
+    };
+
     // ===== Configurable links =====
     const LINKS = { shop: 'https://j-meeshop.com', popup: 'https://example.com/popup' };
     document.querySelectorAll('[data-link]').forEach(a=>{ const key=a.getAttribute('data-link'); if(LINKS[key]) a.href = LINKS[key]; });
@@ -392,7 +448,7 @@
     const homeEl=document.getElementById('home');
     const notifStack=document.getElementById('notifStack');
 
-    // 더미 알림 채우기 (스크롤 가능) "여기서 잠금 화면 알림 창 텍스트 수정 가능"
+    // 더미 알림 채우기 (스크롤 가능)
     const DUMMY = [
       {t:'김준완 연차', d:'8월18일 이사해야함'},
       {t:'구내 시당', d:'이번주는 거르는게 답'},
@@ -437,29 +493,32 @@
     }
 
     // ===== Apps open/close (안정화된 버전) =====
-    // 모든 앱 타일 버튼에 대해 클릭 이벤트 설정
     document.querySelectorAll('.app-tile').forEach(button => {
         button.addEventListener('click', () => {
             const appId = button.getAttribute('data-app');
-            if (appId) {
-                const appScreen = document.getElementById(`app-${appId}`);
-                if (appScreen) {
-                    appScreen.style.display = 'flex';
-                }
+            if (!appId) return;
+
+            const appScreen = document.getElementById(`app-${appId}`);
+            if (!appScreen) return;
+
+            appScreen.style.display = 'flex';
+
+            // 지도 앱이 열릴 때만 initMap 함수를 호출
+            if (appId === 'map') {
+              // 모달이 실제로 화면에 그려진 후 지도를 생성하도록 약간의 지연을 줌
+              requestAnimationFrame(() => {
+                  setTimeout(() => window.initMap(), 0);
+              });
             }
         });
     });
 
-    // 모든 앱 화면의 닫기 버튼과 배경 클릭 이벤트 설정
     document.querySelectorAll('.app-screen').forEach(appScreen => {
-        // 배경 클릭 시 닫기
         appScreen.addEventListener('click', (event) => {
             if (event.target === appScreen) {
                 appScreen.style.display = 'none';
             }
         });
-
-        // 'x' 닫기 버튼 클릭 시 닫기
         const closeButton = appScreen.querySelector('[data-close]');
         if (closeButton) {
             closeButton.addEventListener('click', () => {
@@ -478,7 +537,7 @@
     const pvBefore=document.getElementById('pvBefore'); const pvAfter=document.getElementById('pvAfter');
     function applyPV(v){ 
       pvBefore.style.display = v ? 'none' : 'grid'; 
-      pvAfter.style.display = v ? 'block' : 'none'; // iframe은 block 요소로 변경
+      pvAfter.style.display = v ? 'block' : 'none';
     }
     if(pvToggle){ pvToggle.addEventListener('change', e=> applyPV(e.target.checked)); }
     applyPV(false);
@@ -501,18 +560,16 @@
 
     closeShareBtn.addEventListener('click', closeShareModal);
 
-    // 팝업창 바깥의 어두운 영역을 클릭해도 닫히게 함
     shareModal.addEventListener('click', (e) => {
       if (e.target === shareModal) {
         closeShareModal();
       }
     });
 
-    // 트위터 공유 링크 기능
     shareTwitter.addEventListener('click', (e) => {
       e.preventDefault();
       const shareText = "김빠지게 못하겠단 소리 하지마라 \n도전 하는게 중요 한거다\n호기롭게 시작한 만큼 끝까지 해보자";
-      const shareUrl = window.location.href; // 현재 웹사이트 주소 사용
+      const shareUrl = window.location.href;
       const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
       window.open(twitterUrl, '_blank', 'width=600,height=400');
     });
@@ -520,12 +577,10 @@
     // ESC 키로 앱 또는 공유창 닫기 (정리된 버전)
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
-        // 1순위: 열려있는 공유창 닫기
         if (shareModal && getComputedStyle(shareModal).display !== 'none') {
             closeShareModal();
             return;
         }
-        // 2순위: 열려있는 앱 닫기
         const opens = [...document.querySelectorAll('.app-screen')].filter(s => getComputedStyle(s).display !== 'none');
         const top = opens.at(-1);
         if (top) top.style.display = 'none';
