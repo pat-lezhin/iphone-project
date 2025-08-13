@@ -233,6 +233,7 @@
               <button class="app-tile" data-app="phone"><div class="icon i-ft">📞</div></button>
               <button class="app-tile" data-app="msg"><div class="icon i-ft">💬</div></button>
             </div>
+            <div class="search-pill">⌘ Search</div>
           </section>
 
           <!-- ===== Apps (modals) ===== -->
@@ -353,8 +354,21 @@
     </div>
   </div>
 
+  <!-- ===== Share Modal ===== -->
+  <div class="share-modal-overlay" id="shareModal">
+    <div class="share-box">
+        <p>이 페이지 공유하기</p>
+        <a href="#" id="shareTwitter" class="share-link" title="X(트위터)에 공유">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+            </svg>
+        </a>
+        <button class="close-share" id="closeShareBtn">✕</button>
+    </div>
+  </div>
+
   <script>
-// ===== Configurable links =====
+    // ===== Configurable links =====
     const LINKS = { shop: 'https://j-meeshop.com', popup: 'https://example.com/popup' };
     document.querySelectorAll('[data-link]').forEach(a=>{ const key=a.getAttribute('data-link'); if(LINKS[key]) a.href = LINKS[key]; });
 
@@ -470,7 +484,7 @@
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         // 1순위: 열려있는 공유창 닫기
-        if (getComputedStyle(shareModal).display !== 'none') {
+        if (shareModal && getComputedStyle(shareModal).display !== 'none') {
             closeShareModal();
             return;
         }
@@ -481,16 +495,5 @@
       }
     });
   </script>
-          <div class="share-modal-overlay" id="shareModal">
-            <div class="share-box">
-                <p>이 페이지 공유하기</p>
-                <a href="#" id="shareTwitter" class="share-link" title="X(트위터)에 공유">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-                    </svg>
-                </a>
-                <button class="close-share" id="closeShareBtn">✕</button>
-            </div>
-        </div>
 </body>
 </html>
