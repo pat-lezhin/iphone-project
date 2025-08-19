@@ -1,0 +1,10 @@
+0000000000000000000000000000000000000000 11bdba6f11dc104adb790b02e5e7b9c038a9d0e3 Junwan <junwan8692@gmail.com> 1754989579 +0900	commit (initial): v1
+11bdba6f11dc104adb790b02e5e7b9c038a9d0e3 11bdba6f11dc104adb790b02e5e7b9c038a9d0e3 Junwan <junwan8692@gmail.com> 1754989623 +0900	Branch: renamed refs/heads/master to refs/heads/main
+11bdba6f11dc104adb790b02e5e7b9c038a9d0e3 0a9938fdde8bdbbeb72e6c5ff2a01b50426b68e1 Junwan <junwan8692@gmail.com> 1754989818 +0900	commit: memo.txt추가함
+0a9938fdde8bdbbeb72e6c5ff2a01b50426b68e1 0029ed1120178f94b3534ecec4f8b812f154e49d Junwan <junwan8692@gmail.com> 1755047164 +0900	commit: 배경이미지 상대 경로 설정
+0029ed1120178f94b3534ecec4f8b812f154e49d e6f4e2c0d8f3376c5af25fc92c7690eb861da9b6 Junwan <junwan8692@gmail.com> 1755064184 +0900	commit: 공유버튼 추가_테스트중
+e6f4e2c0d8f3376c5af25fc92c7690eb861da9b6 99c097b196508c68c16c03c695b489426386c92b Junwan <junwan8692@gmail.com> 1755064581 +0900	commit: 공유버튼_에러_<script>부분 수정
+99c097b196508c68c16c03c695b489426386c92b 0be01de18a8ca7fe721c36771690e3242dc7084e Junwan <junwan8692@gmail.com> 1755065182 +0900	commit: X공유 버튼 정상 작동 확인
+0be01de18a8ca7fe721c36771690e3242dc7084e 382b6b40b54555a21776e6c115aa804696e09e6b Junwan <junwan8692@gmail.com> 1755073309 +0900	commit: 비디오 및 X공유 텍스트 변경
+382b6b40b54555a21776e6c115aa804696e09e6b c7971dd0b9803088c89cf255f003ed42892c584d Junwan <junwan8692@gmail.com> 1755078970 +0900	commit: 배경 수정_블러 추가_구글 map API연결 실패
+c7971dd0b9803088c89cf255f003ed42892c584d d286cb4b88cc77615ccb6d20af6788a153cc57cb Junwan <junwan8692@gmail.com> 1755079617 +0900	commit: 화면 비율 조절
